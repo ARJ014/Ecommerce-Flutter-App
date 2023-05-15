@@ -1,5 +1,4 @@
-# amazon_clone
-
+# Ecommerce Application inspired by amazon
 A new Flutter project.
 
 ## Getting Started
