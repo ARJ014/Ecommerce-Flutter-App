@@ -15,12 +15,22 @@ class SearchedProduct extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size.width;
+
+    double totalRating = 0;
+    for (int i = 0; i < product.ratings!.length; i++) {
+      totalRating += product.ratings![i].ratings;
+    }
+    double avgRating = 0;
+    if (totalRating != 0) {
+      avgRating = totalRating / product.ratings!.length;
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 10),
       child: Row(children: [
         Image.network(
           product.images[0],
-          fit: BoxFit.fitWidth,
+          fit: BoxFit.contain,
           height: size / 3,
           width: size / 3,
         ),
@@ -40,7 +50,7 @@ class SearchedProduct extends StatelessWidget {
               Container(
                   padding: const EdgeInsets.only(left: 10, top: 5),
                   width: 1.5 * size / 3,
-                  child: const RatingBar(rating: 4)),
+                  child: RatingBar(rating: avgRating)),
               Container(
                 padding: const EdgeInsets.only(left: 10, top: 5),
                 width: 1.5 * size / 3,

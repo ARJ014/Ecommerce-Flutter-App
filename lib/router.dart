@@ -1,6 +1,7 @@
 import 'package:amazon_clone/common/widget/bottom_bar.dart';
 import 'package:amazon_clone/features/admin/screens/add_products.dart';
 import 'package:amazon_clone/features/auth/screens/auth_screen.dart';
+import 'package:amazon_clone/features/cart/screens/cart.dart';
 import 'package:amazon_clone/features/home/home_screen.dart';
 import 'package:amazon_clone/features/home/screens/category_screens.dart';
 import 'package:amazon_clone/features/product_details/screens/product_detail_screen.dart';
@@ -44,6 +45,9 @@ Route<dynamic> generateRoute(RouteSettings routesettings) {
       return MaterialPageRoute(
           settings: routesettings,
           builder: ((context) => ProudctDetailsScreen(product: product)));
+
+    case CartScreen.name:
+      return MaterialPageRoute(builder: ((context) => const CartScreen()));
 
     default:
       return MaterialPageRoute(

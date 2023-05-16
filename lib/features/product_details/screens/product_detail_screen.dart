@@ -1,11 +1,14 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:amazon_clone/common/widget/button.dart';
 import 'package:amazon_clone/common/widget/rating_bar_star.dart';
+import 'package:amazon_clone/features/product_details/services/product_detail_services.dart';
+import 'package:amazon_clone/provider/user_provider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:amazon_clone/models/proudct.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart' as star;
+import 'package:provider/provider.dart';
 
 import '../../../constants/golabal_variables.dart';
 import '../../search/screen/search_screen.dart';
@@ -23,8 +26,34 @@ class ProudctDetailsScreen extends StatefulWidget {
 }
 
 class _ProudctDetailsScreenState extends State<ProudctDetailsScreen> {
+  final ProductDetailServices productDetailServices = ProductDetailServices();
+  double myRating = 0;
+  double averageRating = 0;
+
   void navigateToSearch(String value) {
     Navigator.pushNamed(context, SearchScreen.name, arguments: value);
+  }
+
+  void addToCart() {
+    productDetailServices.addToCart(context: context, product: widget.product);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    double ratingSum = 0;
+    if (widget.product.ratings != null) {
+      for (int i = 0; i < widget.product.ratings!.length; i++) {
+        if (widget.product.ratings![i].userId ==
+            Provider.of<UserProvider>(context, listen: false).user.id) {
+          myRating = widget.product.ratings![i].ratings;
+        }
+        ratingSum += widget.product.ratings![i].ratings;
+      }
+      if (ratingSum != 0) {
+        averageRating = ratingSum / widget.product.ratings!.length;
+      }
+    }
   }
 
   @override
@@ -104,8 +133,8 @@ class _ProudctDetailsScreenState extends State<ProudctDetailsScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(widget.product.id!),
-                  const RatingBar(rating: 4)
+                  Text(Provider.of<UserProvider>(context).user.email),
+                  RatingBar(rating: averageRating)
                 ],
               ),
             ),
@@ -160,22 +189,36 @@ class _ProudctDetailsScreenState extends State<ProudctDetailsScreen> {
               color: Colors.black12,
               height: 5,
             ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: CustomButton(
-                text: "Buy Now",
-                ontap: () {},
-              ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: CustomButton(
-                color: const Color.fromRGBO(254, 216, 19, 1),
-                text: "Add To Cart",
-                ontap: () {},
-              ),
-            ),
+            widget.product.quantity == 0
+                ? Container(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    alignment: Alignment.center,
+                    child: const Text(
+                      "Out Of Stock",
+                      style: TextStyle(
+                          fontSize: 30, color: GlobalVariables.secondaryColor),
+                    ),
+                  )
+                : Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: CustomButton(
+                          text: "Buy Now",
+                          ontap: () {},
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: CustomButton(
+                          color: const Color.fromRGBO(254, 216, 19, 1),
+                          text: "Add To Cart",
+                          ontap: addToCart,
+                        ),
+                      ),
+                    ],
+                  ),
             const SizedBox(height: 10),
             Container(
               color: Colors.black12,
@@ -190,7 +233,7 @@ class _ProudctDetailsScreenState extends State<ProudctDetailsScreen> {
               ),
             ),
             star.RatingBar.builder(
-                initialRating: 0,
+                initialRating: myRating,
                 minRating: 1,
                 direction: Axis.horizontal,
                 allowHalfRating: true,
@@ -200,7 +243,12 @@ class _ProudctDetailsScreenState extends State<ProudctDetailsScreen> {
                       Icons.star,
                       color: GlobalVariables.secondaryColor,
                     ),
-                onRatingUpdate: (rating) {})
+                onRatingUpdate: (rating) {
+                  productDetailServices.rateProduct(
+                      context: context,
+                      product: widget.product,
+                      rating: rating);
+                })
           ],
         ),
       ),
