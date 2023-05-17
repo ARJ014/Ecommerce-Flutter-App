@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:amazon_clone/constants/error_handling.dart';
 import 'package:amazon_clone/constants/golabal_variables.dart';
 import 'package:amazon_clone/constants/utils.dart';
+import 'package:amazon_clone/models/order.dart';
 import 'package:amazon_clone/models/proudct.dart';
 import 'package:amazon_clone/provider/user_provider.dart';
 import 'package:cloudinary_public/cloudinary_public.dart';
@@ -108,6 +109,54 @@ class AdminServices {
           onsuccess: () {
             onSuccess();
           });
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+  }
+
+  Future<List<Order>> fetchAllOrders(BuildContext context) async {
+    final user = Provider.of<UserProvider>(context, listen: false).user;
+    List<Order> orderList = [];
+    try {
+      http.Response res = await http.get(
+        Uri.parse("$uri/admin/getOrders"),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': user.token
+        },
+      );
+      httpErrorHandler(
+          res: res,
+          context: context,
+          onsuccess: () {
+            for (int i = 0; i < jsonDecode(res.body).length; i++) {
+              orderList.add(
+                Order.fromJson(
+                  jsonEncode(jsonDecode(res.body)[i]),
+                ),
+              );
+            }
+          });
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+    return orderList;
+  }
+
+  void changeOrderStatus(
+      {required BuildContext context,
+      required int status,
+      required Order order,
+      required VoidCallback onSuccess}) async {
+    final user = Provider.of<UserProvider>(context, listen: false).user;
+    try {
+      http.Response res = await http.post(Uri.parse("$uri/admin/change-status"),
+          headers: {
+            'Content-Type': 'application/json; charset=UTF-8',
+            'x-auth-token': user.token
+          },
+          body: jsonEncode({'id': order.id}));
+      httpErrorHandler(res: res, context: context, onsuccess: onSuccess);
     } catch (e) {
       showSnackBar(context, e.toString());
     }

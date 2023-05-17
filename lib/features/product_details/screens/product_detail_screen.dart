@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:amazon_clone/common/widget/button.dart';
 import 'package:amazon_clone/common/widget/rating_bar_star.dart';
+import 'package:amazon_clone/features/address/address_screen.dart';
 import 'package:amazon_clone/features/product_details/services/product_detail_services.dart';
 import 'package:amazon_clone/provider/user_provider.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -36,6 +37,10 @@ class _ProudctDetailsScreenState extends State<ProudctDetailsScreen> {
 
   void addToCart() {
     productDetailServices.addToCart(context: context, product: widget.product);
+  }
+
+  void naviagateToAddressScreen(String totalAmount) {
+    Navigator.pushNamed(context, AddressScreen.name, arguments: totalAmount);
   }
 
   @override
@@ -205,7 +210,9 @@ class _ProudctDetailsScreenState extends State<ProudctDetailsScreen> {
                         padding: const EdgeInsets.all(10.0),
                         child: CustomButton(
                           text: "Buy Now",
-                          ontap: () {},
+                          ontap: () => naviagateToAddressScreen(
+                            widget.product.price.toString(),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 10),

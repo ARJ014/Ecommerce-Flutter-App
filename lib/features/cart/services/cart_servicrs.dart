@@ -15,7 +15,6 @@ class CartServices {
       {required BuildContext context, required Product product}) async {
     final userProvider = Provider.of<UserProvider>(context, listen: false).user;
     try {
-      print(product.id);
       http.Response res = await http.delete(
         Uri.parse("$uri/api/remove-from-cart/${product.id}"),
         headers: {

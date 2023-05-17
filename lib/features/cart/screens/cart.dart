@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../constants/golabal_variables.dart';
+import '../../address/address_screen.dart';
 import '../../search/screen/search_screen.dart';
 
 class CartScreen extends StatefulWidget {
@@ -17,6 +18,10 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  void naviagateToAddressScreen(String totalAmount) {
+    Navigator.pushNamed(context, AddressScreen.name, arguments: totalAmount);
+  }
+
   void navigateToSearch(String value) {
     Navigator.pushNamed(context, SearchScreen.name, arguments: value);
   }
@@ -24,6 +29,12 @@ class _CartScreenState extends State<CartScreen> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<UserProvider>(context).user;
+    int sum = 0;
+    user.cart
+        .map(
+          (e) => sum += e['quantity'] * e['product']['price'] as int,
+        )
+        .toList();
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
@@ -100,7 +111,9 @@ class _CartScreenState extends State<CartScreen> {
               child: CustomButton(
                   color: Colors.yellow[600],
                   text: "Procced to Buy ${user.cart.length} items",
-                  ontap: () {}),
+                  ontap: () {
+                    naviagateToAddressScreen(sum.toString());
+                  }),
             ),
             const SizedBox(height: 7),
             Container(
