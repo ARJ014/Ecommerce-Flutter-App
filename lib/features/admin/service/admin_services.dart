@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:amazon_clone/constants/error_handling.dart';
 import 'package:amazon_clone/constants/golabal_variables.dart';
 import 'package:amazon_clone/constants/utils.dart';
+import 'package:amazon_clone/features/admin/models/sales.dart';
 import 'package:amazon_clone/models/order.dart';
 import 'package:amazon_clone/models/proudct.dart';
 import 'package:amazon_clone/provider/user_provider.dart';
@@ -155,10 +156,48 @@ class AdminServices {
             'Content-Type': 'application/json; charset=UTF-8',
             'x-auth-token': user.token
           },
-          body: jsonEncode({'id': order.id}));
+          body: jsonEncode({'id': order.id, 'status': status}));
+
       httpErrorHandler(res: res, context: context, onsuccess: onSuccess);
     } catch (e) {
       showSnackBar(context, e.toString());
     }
+  }
+
+  Future<Map<String, dynamic>> showAnalystics(
+      {required BuildContext context}) async {
+    final user = Provider.of<UserProvider>(context, listen: false).user;
+    List<Sales> sales = [];
+    int earnings = 0;
+    try {
+      http.Response res = await http.get(
+        Uri.parse("$uri/admin/analytics"),
+        headers: {
+          'Content-Type': 'application/json; charset=UTF-8',
+          'x-auth-token': user.token
+        },
+      );
+      httpErrorHandler(
+          res: res,
+          context: context,
+          onsuccess: () {
+            var response = jsonDecode(res.body);
+            earnings = response['totalSum'];
+            sales = [
+              Sales('Mobiles', response['mobileEarnings']),
+              Sales('Essentials', response['essentialEarnings']),
+              Sales('Books', response['booksEarnings']),
+              Sales('Appliances', response['applianceEarnings']),
+              Sales('Fashion', response['fashionEarnings']),
+            ];
+            print(sales);
+          });
+    } catch (e) {
+      showSnackBar(context, e.toString());
+    }
+    return {
+      'sales': sales,
+      'totalEarnings': earnings,
+    };
   }
 }
